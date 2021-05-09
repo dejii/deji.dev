@@ -2,14 +2,14 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Deji Ibrahim</title>
-    <link>http://example.org/</link>
+    <link>https://staging.deji.dev/</link>
     <description>Recent content on Deji Ibrahim</description>
     <image>
-      <url>http://example.org/papermod-cover.png</url>
-      <link>http://example.org/papermod-cover.png</link>
+      <url>https://staging.deji.dev/papermod-cover.png</url>
+      <link>https://staging.deji.dev/papermod-cover.png</link>
     </image>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="http://example.org/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-us</language><atom:link href="https://staging.deji.dev/index.xml" rel="self" type="application/rss+xml" />
     
     
   </channel>
