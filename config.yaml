@@ -1,4 +1,4 @@
-baseURL: "http://example.org/"
+baseURL: "https://staging.deji.dev/"
 languageCode: "en-us"
 title: "Deji Ibrahim"
 theme: "PaperMod"
