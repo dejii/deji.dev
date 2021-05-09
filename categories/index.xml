@@ -2,13 +2,13 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Categories on Deji Ibrahim</title>
-    <link>https://staging.deji.dev/categories/</link>
+    <link>/categories/</link>
     <description>Recent content in Categories on Deji Ibrahim</description>
     <image>
-      <url>https://staging.deji.dev/papermod-cover.png</url>
-      <link>https://staging.deji.dev/papermod-cover.png</link>
+      <url>/papermod-cover.png</url>
+      <link>/papermod-cover.png</link>
     </image>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://staging.deji.dev/categories/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-us</language><atom:link href="/categories/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>

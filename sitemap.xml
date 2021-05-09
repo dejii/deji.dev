@@ -2,14 +2,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://staging.deji.dev/archives/</loc>
+    <loc>/archives/</loc>
   </url><url>
-    <loc>https://staging.deji.dev/categories/</loc>
+    <loc>/categories/</loc>
   </url><url>
-    <loc>https://staging.deji.dev/</loc>
+    <loc>/</loc>
   </url><url>
-    <loc>https://staging.deji.dev/search/</loc>
+    <loc>/search/</loc>
   </url><url>
-    <loc>https://staging.deji.dev/tags/</loc>
+    <loc>/tags/</loc>
   </url>
 </urlset>
