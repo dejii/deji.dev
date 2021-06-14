@@ -3,11 +3,41 @@ name: github pages
 on:
   push:
     branches:
-      - main  # Set a branch to deploy
+      - main
+      - staging
 
 jobs:
+
+  staging:
+    runs-on: ubuntu-18.04
+    if: github.ref == 'refs/heads/staging'
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true  # Fetch Hugo themes (true OR recursive)
+          fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: '0.81.0'
+          # extended: true
+
+      - name: Build
+        run: hugo --buildDrafts
+
+      - name: Create cname file
+        run: echo 'staging.deji.dev' > public/CNAME
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          destination_dir: staging
+          publish_dir: ./public
   deploy:
     runs-on: ubuntu-18.04
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
         with:
@@ -24,7 +54,7 @@ jobs:
         run: hugo --minify
 
       - name: Create cname file
-        run: echo 'staging.deji.dev' > public/CNAME
+        run: echo 'deji.dev' > public/CNAME
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
