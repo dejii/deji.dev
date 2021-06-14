@@ -7,7 +7,7 @@ draft: true
 Reverse ETL the process of moving data from a data warehouse into third party systems/internal tools to make data
 operational. The major use-case for reverse ETL is Operational Analytics which refers to feeding insights from analytics
 to business teams in their usual workflow, so they can make more data-informed decisions. Another use-case I have found 
-it really useful for is offloading heavy computations to the data warehouse. 
+it really useful for is offloading heavy computations to the data warehouse.. 
 
 This article explores how to build an efficient pipeline to get data out of BigQuery into operational systems.
 
