@@ -2,11 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>/posts/approach-to-reverse-etl-apache-beam/</loc>
+    <lastmod>2021-05-24T17:09:44+01:00</lastmod>
+  </url><url>
+    <loc>/</loc>
+    <lastmod>2021-05-24T17:09:44+01:00</lastmod>
+  </url><url>
+    <loc>/posts/</loc>
+    <lastmod>2021-05-24T17:09:44+01:00</lastmod>
+  </url><url>
     <loc>/archives/</loc>
   </url><url>
     <loc>/categories/</loc>
-  </url><url>
-    <loc>/</loc>
   </url><url>
     <loc>/search/</loc>
   </url><url>
