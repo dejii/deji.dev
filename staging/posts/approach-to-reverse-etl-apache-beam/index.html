@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>An approach to Reverse ETL using Apache Beam. | Deji Ibrahim</title>
+<meta name="keywords" content="" />
+<meta name="description" content="Reverse ETL the process of moving data from a data warehouse into third party systems/internal tools to make data operational. The major use-case for reverse ETL is Operational Analytics which refers to feeding insights from analytics to business teams in their usual workflow, so they can make more data-informed decisions. Another use-case I have found it really useful for is offloading heavy computations to the data warehouse.
+This article explores how to build an efficient pipeline to get data out of BigQuery into operational systems.">
+<meta name="author" content="Deji Ibrahim">
+<link rel="canonical" href="/posts/approach-to-reverse-etl-apache-beam/" />
+<link crossorigin="anonymous" href="/assets/css/stylesheet.min.caca12d378b4c7e0ac888f094bd5a23911f92706eb68a7ec8288fbbf078f8d28.css" integrity="sha256-ysoS03i0x&#43;CsiI8JS9WiORH5JwbraKfsgoj7vwePjSg=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.min.7680afc38aa6b15ddf158a4f3780b7b1f7dde7e91d26f073e6229bb7a0793c92.js" integrity="sha256-doCvw4qmsV3fFYpPN4C3sffd5&#43;kdJvBz5iKbt6B5PJI="
+    onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<meta name="generator" content="Hugo 0.81.0" />
+<meta property="og:title" content="An approach to Reverse ETL using Apache Beam." />
+<meta property="og:description" content="Reverse ETL the process of moving data from a data warehouse into third party systems/internal tools to make data operational. The major use-case for reverse ETL is Operational Analytics which refers to feeding insights from analytics to business teams in their usual workflow, so they can make more data-informed decisions. Another use-case I have found it really useful for is offloading heavy computations to the data warehouse.
+This article explores how to build an efficient pipeline to get data out of BigQuery into operational systems." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/posts/approach-to-reverse-etl-apache-beam/" /><meta property="og:image" content="/papermod-cover.png"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-05-24T17:09:44&#43;01:00" />
+<meta property="article:modified_time" content="2021-05-24T17:09:44&#43;01:00" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="/papermod-cover.png"/>
+
+<meta name="twitter:title" content="An approach to Reverse ETL using Apache Beam."/>
+<meta name="twitter:description" content="Reverse ETL the process of moving data from a data warehouse into third party systems/internal tools to make data operational. The major use-case for reverse ETL is Operational Analytics which refers to feeding insights from analytics to business teams in their usual workflow, so they can make more data-informed decisions. Another use-case I have found it really useful for is offloading heavy computations to the data warehouse.
+This article explores how to build an efficient pipeline to get data out of BigQuery into operational systems."/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "/posts/"
+    }
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "An approach to Reverse ETL using Apache Beam.",
+      "item": "/posts/approach-to-reverse-etl-apache-beam/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "An approach to Reverse ETL using Apache Beam.",
+  "name": "An approach to Reverse ETL using Apache Beam.",
+  "description": "Reverse ETL the process of moving data from a data warehouse into third party systems/internal tools to make data operational. The major use-case for reverse ETL is Operational Analytics which refers to feeding insights from analytics to business teams in their usual workflow, so they can make more data-informed decisions. Another use-case I have found it really useful for is offloading heavy computations to the data warehouse.\nThis article explores how to build an efficient pipeline to get data out of BigQuery into operational systems.",
+  "keywords": [
+    
+  ],
+  "articleBody": "Reverse ETL the process of moving data from a data warehouse into third party systems/internal tools to make data operational. The major use-case for reverse ETL is Operational Analytics which refers to feeding insights from analytics to business teams in their usual workflow, so they can make more data-informed decisions. Another use-case I have found it really useful for is offloading heavy computations to the data warehouse.\nThis article explores how to build an efficient pipeline to get data out of BigQuery into operational systems.\nYou might wonder why not use the BigQuery APIs directly from the required service? Well, that could work for lighter workloads. With heavier workloads, you don’t really want to get into writing application logic to pull large amounts of records.\nApache Beam  Apache Beam is an open source, unified model for defining both batch and streaming data-parallel processing pipelines. Using one of the open source Beam SDKs, you build a program that defines the pipeline. The pipeline is then executed by one of Beam’s supported distributed processing back-ends, which include Apache Flink, Apache Spark, and Google Cloud Dataflow. More..\n To illustrate, we are read a table from the BigQuery public dataset. The table is called bigquery-public-data:new_york_trees.tree_census_2015 which contains NYC tree street data.\nI wrote a reusable python dataflow flex template here. This template creates a pipeline that reads records from a table in BigQuery and publishes them to a Pub/Sub topic. It takes in two parameters\n input_query - BigQuery SQL query to be executed. output_topic - Output Pubsub topic to write results to.  After setting up the template on a GCP project, we can run the pipeline by doing the following\nPROJECT= BUCKET= REGION=us-central1 TEMPLATE_PATH=\"gs://$BUCKET/dataflow/templates/bigquery_to_pubsub_beam.json\" gcloud dataflow flex-template run \"bq-to-pubsub-streaming-beam-`date +%Y%m%d-%H%M%S`\" \\  --template-file-gcs-location \"$TEMPLATE_PATH\" \\  --parameters input_query=\"SELECT * FROM \\`bigquery-public-data.new_york_trees.tree_census_2015\\`\" \\  --parameters output_topic=\"projects/$PROJECT/topics/tree-census\" \\  --region \"$REGION\" \nDataflow Job Metrics. Records published in a short span of time. Alternatively, Google Cloud allows you to create jobs from templates using the cloud console. Summary We have taken an approach originally meant for doing ETL and applied it to a reverse scenario. An advantage of using templates is its re-usability. We can take this template and use it for different jobs that take this approach. You can conveniently start a job using the Cloud Console UI or schedule it programmatically using your favorite orchestration tool e.g. Airflow or even communicating directly with the Google APIs.\n",
+  "wordCount" : "397",
+  "inLanguage": "en",
+  "datePublished": "2021-05-24T17:09:44+01:00",
+  "dateModified": "2021-05-24T17:09:44+01:00",
+  "author":{
+    "@type": "Person",
+    "name": "Deji Ibrahim"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/posts/approach-to-reverse-etl-apache-beam/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Deji Ibrahim",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+<noscript>
+    <style type="text/css">
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: #1d1e20;
+                --entry: #2e2e33;
+                --primary: rgba(255, 255, 255, 0.84);
+                --secondary: rgba(255, 255, 255, 0.56);
+                --tertiary: rgba(255, 255, 255, 0.16);
+                --content: rgba(255, 255, 255, 0.74);
+                --hljs-bg: #2e2e33;
+                --code-bg: #37383e;
+                --border: #333;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="/" accesskey="h" title="Deji Ibrahim (Alt + H)">Deji Ibrahim</a>
+            <span class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </span>
+        </div>
+        <ul id="menu" onscroll="menu_on_scroll()">
+            <li>
+                <a href="/archives" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="/categories/" title="Categories">
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li>
+                <a href="/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="/">Home</a>&nbsp;»&nbsp;<a href="/posts/">Posts</a></div>
+    <h1 class="post-title">
+      An approach to Reverse ETL using Apache Beam.<div class="entry-isdraft"><sup>&nbsp;&nbsp;[draft]</sup></div>
+    </h1>
+    <div class="post-meta">May 24, 2021&nbsp;·&nbsp;2 min&nbsp;·&nbsp;Deji Ibrahim
+</div>
+  </header> 
+  <div class="post-content"><p>Reverse ETL the process of moving data from a data warehouse into third party systems/internal tools to make data
+operational. The major use-case for reverse ETL is Operational Analytics which refers to feeding insights from analytics
+to business teams in their usual workflow, so they can make more data-informed decisions. Another use-case I have found
+it really useful for is offloading heavy computations to the data warehouse.</p>
+<p>This article explores how to build an efficient pipeline to get data out of BigQuery into operational systems.</p>
+<p>You might wonder why not use the BigQuery APIs directly from the required service? Well, that could work for lighter
+workloads. With heavier workloads, you don&rsquo;t really want to get into writing application logic to pull large amounts of
+records.</p>
+<h3 id="apache-beam">Apache Beam<a hidden class="anchor" aria-hidden="true" href="#apache-beam">#</a></h3>
+<blockquote>
+<p>Apache Beam is an open source, unified model for defining both batch and streaming data-parallel processing pipelines. Using one of the open source Beam SDKs, you build a program that defines the pipeline. The pipeline is then executed by one of Beam’s supported distributed processing back-ends, which include Apache Flink, Apache Spark, and Google Cloud Dataflow. <a href="https://beam.apache.org/get-started/beam-overview/">More..</a></p>
+</blockquote>
+<p>To illustrate, we are read a table from the <a href="https://cloud.google.com/bigquery/public-data">BigQuery public dataset</a>.
+The table is called <code>bigquery-public-data:new_york_trees.tree_census_2015</code> which contains NYC tree street data.</p>
+<p><img loading="lazy" src="bq_tree_census_2015.png" alt="BigQuery Table Info"  />
+</p>
+<p>I wrote a reusable python dataflow flex template <a href="https://github.com/dejii/bigquery-to-pubsub-beam">here</a>. This template
+creates a pipeline that reads records from a table in BigQuery and publishes them to a Pub/Sub topic. It takes in
+two parameters</p>
+<ul>
+<li><code>input_query</code> - BigQuery SQL query to be executed.</li>
+<li><code>output_topic</code> - Output Pubsub topic to write results to.</li>
+</ul>
+<p>After setting up the template on a GCP project, we can run the pipeline by doing the following</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">PROJECT<span style="color:#f92672">=</span>&lt;project-id&gt;
+BUCKET<span style="color:#f92672">=</span>&lt;bucket-name&gt;
+REGION<span style="color:#f92672">=</span>us-central1
+TEMPLATE_PATH<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;gs://</span>$BUCKET<span style="color:#e6db74">/dataflow/templates/bigquery_to_pubsub_beam.json&#34;</span>
+gcloud dataflow flex-template run <span style="color:#e6db74">&#34;bq-to-pubsub-streaming-beam-`date +%Y%m%d-%H%M%S`&#34;</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --template-file-gcs-location <span style="color:#e6db74">&#34;</span>$TEMPLATE_PATH<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --parameters input_query<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;SELECT * FROM \`bigquery-public-data.new_york_trees.tree_census_2015\`&#34;</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --parameters output_topic<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;projects/</span>$PROJECT<span style="color:#e6db74">/topics/tree-census&#34;</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --region <span style="color:#e6db74">&#34;</span>$REGION<span style="color:#e6db74">&#34;</span>
+</code></pre></div><p><br>
+Dataflow Job Metrics.
+<img loading="lazy" src="dataflow_job_metrics.png" alt="Dataflow Job metrics"  />
+
+<br>
+Records published in a short span of time.
+<img loading="lazy" src="pubsub_msg_count_graph.png" alt="Pubsub Message Count Graph"  />
+
+<br>
+Alternatively, Google Cloud allows you to create jobs from templates using the cloud console.
+<img loading="lazy" src="dataflow_cloud_console_ui.png" alt="Dataflow Cloud Console UI"  />
+</p>
+<h3 id="summary">Summary<a hidden class="anchor" aria-hidden="true" href="#summary">#</a></h3>
+<p>We have taken an approach originally meant for doing ETL and applied it to a reverse scenario. An advantage of using
+templates is its re-usability. We can take this template and use it for different jobs that take this approach.
+You can conveniently start a job using the Cloud Console UI or schedule it programmatically using your favorite
+orchestration tool e.g. Airflow or even communicating directly with the Google APIs.</p>
+
+</div>
+  <footer class="post-footer">
+
+  </footer><div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "deji-dev" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</article>
+    </main>
+    <footer class="footer">
+    <span>&copy; 2021 <a href="/">Deji Ibrahim</a></span>
+    <span>&middot;</span>
+    <span>Powered by <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a></span>
+    <span>&middot;</span>
+    <span>Theme <a href="https://git.io/hugopapermod" rel="noopener" target="_blank">PaperMod</a></span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)">
+    <button class="top-link" id="top-link" type="button" accesskey="g">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z" />
+        </svg>
+    </button>
+</a>
+
+<script>
+    window.onload = function () {
+        if (localStorage.getItem("menu-scroll-position")) {
+            document.getElementById('menu').scrollLeft = localStorage.getItem("menu-scroll-position");
+        }
+    }
+
+    function menu_on_scroll() {
+        localStorage.setItem("menu-scroll-position", document.getElementById('menu').scrollLeft);
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerText = 'copy';
+
+        function copyingDone() {
+            copybutton.innerText = 'copied!';
+            setTimeout(() => {
+                copybutton.innerText = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
