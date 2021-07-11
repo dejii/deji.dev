@@ -10,8 +10,8 @@ buildFuture: false
 buildExpired: false
 enableEmoji: true
 # googleAnalytics: UA-123-45
-disqusShortname: deji-dev
-disqus_developer: 1
+#disqusShortname: deji-dev
+#disqus_developer: 1
 
 
 minify:
@@ -49,7 +49,7 @@ params:
 
   defaultTheme: auto
   # disableThemeToggle: true
-#  ShowShareButtons: true
+  #  ShowShareButtons: true
   ShowReadingTime: true
   # disableSpecial1stPost: true
   displayFullLangName: true
