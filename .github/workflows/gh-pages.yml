@@ -32,8 +32,8 @@ jobs:
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          destination_dir: staging
+          personal_token: ${{ secrets.PERSONAL_TOKEN }}
+          external_repository: dejii/deji.dev-staging-ghpages
           publish_dir: ./public
   deploy:
     runs-on: ubuntu-18.04

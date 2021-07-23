@@ -10,8 +10,8 @@ buildFuture: false
 buildExpired: false
 enableEmoji: true
 # googleAnalytics: UA-123-45
-disqusShortname: deji-dev
-disqus_developer: 1
+#disqusShortname: deji-dev
+#disqus_developer: 1
 
 
 minify:
@@ -49,21 +49,22 @@ params:
 
   defaultTheme: auto
   # disableThemeToggle: true
-  ShowShareButtons: true
+  #  ShowShareButtons: true
   ShowReadingTime: true
   # disableSpecial1stPost: true
   displayFullLangName: true
   ShowPostNavLinks: true
   ShowBreadCrumbs: true
   ShowCodeCopyButtons: true
-  ShowToc: true
+  #  ShowToc: true
   # comments: false
   images: [ "papermod-cover.png" ]
 
   homeInfoParams:
     Title: "Hi 👋"
     Content: >
-      Welcome to my personal blog.
+      Welcome! I'm Deji and this blog is where I write things that have my attention. I'm a software and data engineer.
+      You can always contact me at hey@deji.dev
 
   socialIcons:
     - name: github
