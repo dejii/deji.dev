@@ -1,7 +1,7 @@
 ---
 title: "An approach to Reverse ETL using Apache Beam."
 date: 2021-07-10T17:09:44+01:00
-tags: ["apache-beam", "dataflow", "pubsub", "etl"]
+tags: ["apache-beam", "dataflow"]
 draft: false
 ---
 
