@@ -9,6 +9,25 @@
       <link>/papermod-cover.png</link>
     </image>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-us</language>
+    <lastBuildDate>Sat, 10 Jul 2021 17:09:44 +0100</lastBuildDate><atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>apache-beam</title>
+      <link>/tags/apache-beam/</link>
+      <pubDate>Sat, 10 Jul 2021 17:09:44 +0100</pubDate>
+      
+      <guid>/tags/apache-beam/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>dataflow</title>
+      <link>/tags/dataflow/</link>
+      <pubDate>Sat, 10 Jul 2021 17:09:44 +0100</pubDate>
+      
+      <guid>/tags/dataflow/</guid>
+      <description></description>
+    </item>
+    
   </channel>
 </rss>
