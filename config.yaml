@@ -63,7 +63,8 @@ params:
   homeInfoParams:
     Title: "Hi 👋"
     Content: >
-      Welcome to my personal blog.
+      Welcome! I'm Deji and this blog is where I write things that have my attention. I'm a software and data engineer.
+      You can always contact me at hey@deji.dev
 
   socialIcons:
     - name: github
