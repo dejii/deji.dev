@@ -2,7 +2,7 @@
 title: "An approach to Reverse ETL using Apache Beam."
 date: 2021-07-10T17:09:44+01:00
 tags: ["apache-beam", "dataflow", "pubsub", "etl"]
-draft: true
+draft: false
 ---
 
 Reverse ETL the process of moving data from a data warehouse into third party systems/internal tools to make data
