@@ -9,7 +9,7 @@ on:
 jobs:
 
   staging:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/staging'
     steps:
       - uses: actions/checkout@v2
@@ -36,7 +36,7 @@ jobs:
           external_repository: dejii/deji.dev-staging-ghpages
           publish_dir: ./public
   deploy:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
