@@ -13,7 +13,6 @@ enableEmoji: true
 #disqusShortname: deji-dev
 #disqus_developer: 1
 
-
 minify:
   disableXML: true
   disableJSON: true
